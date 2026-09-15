@@ -32,7 +32,12 @@ export default async function DetalheClientePage({ params }: { params: { id: str
     .eq("cliente_id", params.id);
 
   const contratoAtivo = (cliente.contratos as any[])?.find((c) => c.status === "ativo");
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl =
+    process.env.VERCEL === "1" &&
+    (!configuredSiteUrl || configuredSiteUrl.includes("localhost"))
+      ? `https://${process.env.VERCEL_URL}`
+      : configuredSiteUrl || "http://localhost:3000";
   const linkPortal = `${siteUrl}/portal/${cliente.portal_token}`;
 
   const desativarComId = desativarCliente.bind(null, cliente.id);

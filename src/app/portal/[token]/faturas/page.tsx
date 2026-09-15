@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import { buscarClientePorToken, servicoSupabasePortal } from "@/lib/portal";
 import { formatarMoeda, formatarCompetencia } from "@/lib/formato";
 import { PillStatus } from "@/components/Pill";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 
 export default async function HistoricoPage({ params }: { params: { token: string } }) {
+  noStore();
   const cliente = await buscarClientePorToken(params.token);
   if (!cliente) notFound();
 

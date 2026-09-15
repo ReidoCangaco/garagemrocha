@@ -178,7 +178,7 @@ export async function marcarFaturaComoPaga(faturaId: string) {
 
   const { data: fatura, error: erroFatura } = await supabase
     .from("faturas")
-    .select("valor")
+    .select("valor, cliente_id")
     .eq("id", faturaId)
     .single();
   if (erroFatura) throw new Error(erroFatura.message);
@@ -200,7 +200,18 @@ export async function marcarFaturaComoPaga(faturaId: string) {
     registrado_por: adminId,
   });
 
+  const { data: cliente } = await supabase
+    .from("clientes")
+    .select("portal_token")
+    .eq("id", fatura.cliente_id)
+    .single();
+
   revalidatePath("/admin/faturas");
+  if (cliente?.portal_token) {
+    revalidatePath(`/portal/${cliente.portal_token}`);
+    revalidatePath(`/portal/${cliente.portal_token}/faturas`);
+    revalidatePath(`/portal/${cliente.portal_token}/faturas/${faturaId}`);
+  }
 }
 
 export async function cancelarFatura(faturaId: string) {

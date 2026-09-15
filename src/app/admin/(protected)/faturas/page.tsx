@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatarMoeda, formatarData, formatarCompetencia } from "@/lib/formato";
 import { PillStatus } from "@/components/Pill";
-import { gerarFaturasDoMes, marcarFaturaComoPaga, cancelarFatura } from "@/actions/admin-actions";
+import {
+  gerarFaturasDoMes,
+  marcarFaturaComoPaga,
+  cancelarFatura,
+  reabrirFatura,
+  excluirFatura,
+} from "@/actions/admin-actions";
 import type { StatusVisual } from "@/lib/status";
 
 export const dynamic = "force-dynamic";
@@ -76,6 +82,8 @@ export default async function FaturasPage({
             {(faturas ?? []).map((f: any) => {
               const marcarPagaComId = marcarFaturaComoPaga.bind(null, f.id);
               const cancelarComId = cancelarFatura.bind(null, f.id);
+              const reabrirComId = reabrirFatura.bind(null, f.id);
+              const excluirComId = excluirFatura.bind(null, f.id);
               return (
                 <tr key={f.id} className="border-t border-border hover:bg-paper">
                   <td className="px-4 py-3">{f.clientes?.nome_completo}</td>
@@ -93,6 +101,19 @@ export default async function FaturasPage({
                         </form>
                         <form action={cancelarComId}>
                           <button className="text-xs underline text-late" type="submit">cancelar</button>
+                        </form>
+                        <form action={excluirComId}>
+                          <button className="text-xs underline text-late" type="submit">excluir</button>
+                        </form>
+                      </div>
+                    )}
+                    {f.status === "cancelado" && (
+                      <div className="flex gap-3 justify-end">
+                        <form action={reabrirComId}>
+                          <button className="text-xs underline" type="submit">reabrir</button>
+                        </form>
+                        <form action={excluirComId}>
+                          <button className="text-xs underline text-late" type="submit">excluir</button>
                         </form>
                       </div>
                     )}

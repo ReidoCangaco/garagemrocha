@@ -107,6 +107,16 @@ export default async function FaturasPage({
                         </form>
                       </div>
                     )}
+                    {f.status === "pago" && (
+                      <div className="flex gap-3 justify-end">
+                        <form action={reabrirComId}>
+                          <button className="text-xs underline" type="submit">reabrir</button>
+                        </form>
+                        <form action={excluirComId}>
+                          <button className="text-xs underline text-late" type="submit">excluir</button>
+                        </form>
+                      </div>
+                    )}
                     {f.status === "cancelado" && (
                       <div className="flex gap-3 justify-end">
                         <form action={reabrirComId}>

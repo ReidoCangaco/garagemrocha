@@ -228,11 +228,18 @@ export async function cancelarFatura(faturaId: string) {
 
 export async function reabrirFatura(faturaId: string) {
   const { supabase } = await exigirAdmin();
+
+  const { error: erroPagamentos } = await supabase
+    .from("pagamentos")
+    .delete()
+    .eq("fatura_id", faturaId);
+  if (erroPagamentos) throw new Error(erroPagamentos.message);
+
   const { error } = await supabase
     .from("faturas")
     .update({ status: "pendente", data_pagamento: null, forma_pagamento: null })
     .eq("id", faturaId)
-    .eq("status", "cancelado");
+    .in("status", ["cancelado", "pago"]);
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/faturas");
@@ -241,20 +248,18 @@ export async function reabrirFatura(faturaId: string) {
 
 export async function excluirFatura(faturaId: string) {
   const { supabase } = await exigirAdmin();
-  const { count, error: erroPagamentos } = await supabase
+
+  const { error: erroPagamentos } = await supabase
     .from("pagamentos")
-    .select("id", { count: "exact", head: true })
+    .delete()
     .eq("fatura_id", faturaId);
   if (erroPagamentos) throw new Error(erroPagamentos.message);
-  if (count && count > 0) {
-    throw new Error("Fatura com pagamento registrado não pode ser excluída.");
-  }
 
   const { error } = await supabase
     .from("faturas")
     .delete()
     .eq("id", faturaId)
-    .in("status", ["pendente", "cancelado"]);
+    .in("status", ["pendente", "cancelado", "pago"]);
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/faturas");

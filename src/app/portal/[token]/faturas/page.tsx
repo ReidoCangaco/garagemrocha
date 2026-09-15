@@ -17,7 +17,7 @@ export default async function HistoricoPage({ params }: { params: { token: strin
   const supabase = servicoSupabasePortal();
   const { data: faturas } = await supabase
     .from("faturas_com_status_visual")
-    .select("id, competencia, valor, status_visual, dias_em_atraso")
+    .select("id, competencia, valor, data_vencimento, status_visual, dias_em_atraso")
     .eq("cliente_id", cliente.id)
     .order("competencia", { ascending: false });
 
@@ -39,7 +39,7 @@ export default async function HistoricoPage({ params }: { params: { token: strin
               <span className="font-semibold text-sm">{formatarCompetencia(f.competencia)}</span>
               <div className="flex items-center gap-3">
                 <span className="font-mono text-sm text-ink-soft">{formatarMoeda(Number(f.valor))}</span>
-                <PillStatus status={f.status_visual as StatusVisual} diasEmAtraso={f.dias_em_atraso} />
+                <PillStatus status={f.status_visual as StatusVisual} diasEmAtraso={f.dias_em_atraso} dataVencimento={f.data_vencimento} />
               </div>
             </Link>
           ))}

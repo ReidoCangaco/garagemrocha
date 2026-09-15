@@ -83,7 +83,7 @@ export default async function FaturasPage({
                   <td className="px-4 py-3 font-mono text-xs">{formatarMoeda(Number(f.valor))}</td>
                   <td className="px-4 py-3">{formatarData(f.data_vencimento)}</td>
                   <td className="px-4 py-3">
-                    <PillStatus status={f.status_visual as StatusVisual} diasEmAtraso={f.dias_em_atraso} />
+                    <PillStatus status={f.status_visual as StatusVisual} diasEmAtraso={f.dias_em_atraso} dataVencimento={f.data_vencimento} />
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     {f.status === "pendente" && (

@@ -61,7 +61,7 @@ export default async function DetalheFaturaPage({
           <p className="font-display font-bold text-3xl mb-1">{formatarMoeda(Number(fatura.valor))}</p>
           <div className="flex items-center justify-between flex-wrap gap-2">
             <span className="text-sm text-ink-soft">Vencimento: {formatarData(fatura.data_vencimento)}</span>
-            <PillStatus status={fatura.status_visual as StatusVisual} diasEmAtraso={fatura.dias_em_atraso} />
+            <PillStatus status={fatura.status_visual as StatusVisual} diasEmAtraso={fatura.dias_em_atraso} dataVencimento={fatura.data_vencimento} />
           </div>
         </div>
 

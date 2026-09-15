@@ -1,4 +1,4 @@
-import { corStatus, rotuloStatus, type StatusVisual } from "@/lib/status";
+import { corStatus, rotuloPrazo, rotuloStatus, type StatusVisual } from "@/lib/status";
 
 const DOT_CLASS: Record<"ok" | "warn" | "late", string> = {
   ok: "bg-ok",
@@ -9,15 +9,18 @@ const DOT_CLASS: Record<"ok" | "warn" | "late", string> = {
 export function PillStatus({
   status,
   diasEmAtraso,
+  dataVencimento,
 }: {
   status: StatusVisual;
   diasEmAtraso?: number | null;
+  dataVencimento?: string | null;
 }) {
-  const cor = corStatus(status);
+  const prazo = rotuloPrazo(status, dataVencimento);
+  const cor = prazo && status !== "vence_hoje" ? "warn" : corStatus(status);
   return (
     <span className={`pill pill-${cor}`}>
       <span className={`pill-dot ${DOT_CLASS[cor]}`} />
-      {rotuloStatus(status, diasEmAtraso)}
+      {prazo ?? rotuloStatus(status, diasEmAtraso)}
     </span>
   );
 }

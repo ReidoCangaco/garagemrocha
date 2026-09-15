@@ -22,6 +22,19 @@ export function rotuloStatus(status: StatusVisual, diasEmAtraso?: number | null)
   return CONFIG[status]?.label ?? status;
 }
 
+export function rotuloPrazo(status: StatusVisual, dataVencimento?: string | null): string | null {
+  if (status === "vence_hoje") return "Vence hoje";
+  if (!["em_dia", "proximo_vencimento"].includes(status) || !dataVencimento) return null;
+
+  const hoje = new Date();
+  const hojeUtc = Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  const [ano, mes, dia] = dataVencimento.slice(0, 10).split("-").map(Number);
+  const vencimentoUtc = Date.UTC(ano, mes - 1, dia);
+  const dias = Math.round((vencimentoUtc - hojeUtc) / 86_400_000);
+
+  return `Faltam ${dias} ${dias === 1 ? "dia" : "dias"} para o vencimento`;
+}
+
 export function corStatus(status: StatusVisual): "ok" | "warn" | "late" {
   return CONFIG[status]?.cor ?? "warn";
 }

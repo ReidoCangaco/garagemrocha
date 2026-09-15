@@ -82,6 +82,7 @@ export default async function PortalHomePage({ params }: { params: { token: stri
               <PillStatus
                 status={faturaAtual.status_visual as StatusVisual}
                 diasEmAtraso={faturaAtual.dias_em_atraso}
+                dataVencimento={faturaAtual.data_vencimento}
               />
             </div>
             {faturaAtual.status_visual !== "pago" ? (

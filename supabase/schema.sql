@@ -83,6 +83,36 @@ create unique index contratos_vaga_ativa_unica
   on public.contratos (vaga_id)
   where status = 'ativo';
 
+create or replace function public.sincronizar_status_vaga()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.vagas v
+  set status = case
+    when v.status = 'inativa' then 'inativa'
+    when exists (
+      select 1
+      from public.contratos c
+      where c.vaga_id = v.id
+        and c.status = 'ativo'
+    ) then 'ocupada'
+    else 'livre'
+  end
+  where v.id = coalesce(new.vaga_id, old.vaga_id);
+
+  return coalesce(new, old);
+end;
+$$;
+
+create trigger trg_sincronizar_status_vaga_after_contrato
+  after insert or update of vaga_id, status or delete
+  on public.contratos
+  for each row
+  execute function public.sincronizar_status_vaga();
+
 -- =========================================
 -- FATURAS
 -- =========================================

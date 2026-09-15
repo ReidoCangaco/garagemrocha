@@ -13,10 +13,11 @@ export default async function DashboardPage() {
   const competenciaAtual = inicioMes.toISOString().slice(0, 10);
   const competenciaSeguinte = inicioProximoMes.toISOString().slice(0, 10);
 
-  const [{ count: totalClientes }, { data: vagas }, { data: faturasMes }, { data: inadimplentes }, { data: faturasHistorico }] =
+  const [{ count: totalClientes }, { data: vagas }, { data: contratosAtivos }, { data: faturasMes }, { data: inadimplentes }, { data: faturasHistorico }] =
     await Promise.all([
       supabase.from("clientes").select("id", { count: "exact", head: true }).eq("ativo", true),
-      supabase.from("vagas").select("status"),
+      supabase.from("vagas").select("id,status"),
+      supabase.from("contratos").select("vaga_id").eq("status", "ativo"),
       supabase
         .from("faturas_com_status_visual")
         .select("valor,status")
@@ -33,8 +34,11 @@ export default async function DashboardPage() {
         .order("competencia", { ascending: false }),
     ]);
 
-  const vagasOcupadas = (vagas ?? []).filter((v) => v.status === "ocupada").length;
-  const vagasLivres = (vagas ?? []).filter((v) => v.status === "livre").length;
+  const vagasOcupadas = (vagas ?? []).filter((v) => {
+    if (v.status === "inativa") return false;
+    return (contratosAtivos ?? []).some((c) => c.vaga_id === v.id);
+  }).length;
+  const vagasLivres = (vagas ?? []).filter((v) => v.status !== "inativa" && !(contratosAtivos ?? []).some((c) => c.vaga_id === v.id)).length;
 
   const recebidoMes = (faturasMes ?? [])
     .filter((f) => f.status === "pago")

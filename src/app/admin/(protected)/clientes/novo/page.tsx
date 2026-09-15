@@ -5,11 +5,15 @@ export const dynamic = "force-dynamic";
 
 export default async function NovoClientePage() {
   const supabase = createClient();
-  const { data: vagasLivres } = await supabase
-    .from("vagas")
-    .select("id, numero")
-    .eq("status", "livre")
-    .order("numero");
+  const [{ data: vagas }, { data: contratosAtivos }] = await Promise.all([
+    supabase.from("vagas").select("id, numero, status").order("numero"),
+    supabase.from("contratos").select("vaga_id").eq("status", "ativo"),
+  ]);
+
+  const vagasLivres = (vagas ?? [])
+    .filter((vaga) => vaga.status !== "inativa")
+    .filter((vaga) => !(contratosAtivos ?? []).some((contrato) => contrato.vaga_id === vaga.id))
+    .map((vaga) => ({ id: vaga.id, numero: vaga.numero }));
 
   return (
     <div className="max-w-xl">

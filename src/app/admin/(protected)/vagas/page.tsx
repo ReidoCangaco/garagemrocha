@@ -5,7 +5,18 @@ export const dynamic = "force-dynamic";
 
 export default async function VagasPage() {
   const supabase = createClient();
-  const { data: vagas } = await supabase.from("vagas").select("id, numero, status").order("numero");
+  const [{ data: vagas }, { data: contratosAtivos }] = await Promise.all([
+    supabase.from("vagas").select("id, numero, status").order("numero"),
+    supabase.from("contratos").select("vaga_id").eq("status", "ativo"),
+  ]);
+
+  const vagasComStatus = (vagas ?? []).map((vaga) => {
+    const ocupada = (contratosAtivos ?? []).some((contrato) => contrato.vaga_id === vaga.id);
+    return {
+      ...vaga,
+      status: vaga.status === "inativa" ? "inativa" : ocupada ? "ocupada" : "livre",
+    };
+  });
 
   return (
     <div>
@@ -27,7 +38,7 @@ export default async function VagasPage() {
       </div>
 
       <div className="grid grid-cols-6 sm:grid-cols-10 gap-1.5">
-        {(vagas ?? []).map((v) => (
+        {vagasComStatus.map((v) => (
           <div
             key={v.id}
             title={`Vaga ${v.numero} — ${v.status}`}
@@ -44,7 +55,7 @@ export default async function VagasPage() {
         ))}
       </div>
 
-      {(vagas ?? []).length === 0 && (
+      {vagasComStatus.length === 0 && (
         <p className="text-sm text-ink-soft">Nenhuma vaga cadastrada ainda.</p>
       )}
     </div>

@@ -36,7 +36,7 @@ export default async function DetalheClientePage({ params }: { params: { id: str
   const siteUrl =
     process.env.VERCEL === "1" &&
     (!configuredSiteUrl || configuredSiteUrl.includes("localhost"))
-      ? `https://${process.env.VERCEL_URL}`
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || "garagemrocha.vercel.app"}`
       : configuredSiteUrl || "http://localhost:3000";
   const linkPortal = `${siteUrl}/portal/${cliente.portal_token}`;
 

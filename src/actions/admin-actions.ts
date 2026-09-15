@@ -23,6 +23,20 @@ async function exigirAdmin() {
   return { supabase, adminId: user.id };
 }
 
+async function sincronizarStatusVaga(supabase: any, vagaId: string) {
+  const { data: contratoAtivo } = await supabase
+    .from("contratos")
+    .select("id")
+    .eq("vaga_id", vagaId)
+    .eq("status", "ativo")
+    .maybeSingle();
+
+  await supabase
+    .from("vagas")
+    .update({ status: contratoAtivo ? "ocupada" : "livre" })
+    .eq("id", vagaId);
+}
+
 // ---------------------------------------------------------------------
 // VAGAS
 // ---------------------------------------------------------------------
@@ -84,6 +98,17 @@ export async function criarClienteCompleto(formData: FormData) {
     veiculoId = veiculo.id;
   }
 
+  const { data: vagaOcupada } = await supabase
+    .from("contratos")
+    .select("id")
+    .eq("vaga_id", vagaId)
+    .eq("status", "ativo")
+    .maybeSingle();
+
+  if (vagaOcupada) {
+    throw new Error("Esta vaga já está ocupada por outro cliente.");
+  }
+
   const { error: erroContrato } = await supabase.from("contratos").insert({
     cliente_id: cliente.id,
     vaga_id: vagaId,
@@ -94,7 +119,7 @@ export async function criarClienteCompleto(formData: FormData) {
   });
   if (erroContrato) throw new Error(erroContrato.message);
 
-  await supabase.from("vagas").update({ status: "ocupada" }).eq("id", vagaId);
+  await sincronizarStatusVaga(supabase, vagaId);
 
   revalidatePath("/admin/clientes");
   revalidatePath("/admin/vagas");
@@ -104,6 +129,12 @@ export async function criarClienteCompleto(formData: FormData) {
 export async function desativarCliente(clienteId: string) {
   const { supabase } = await exigirAdmin();
 
+  const { data: contratos } = await supabase
+    .from("contratos")
+    .select("vaga_id")
+    .eq("cliente_id", clienteId)
+    .eq("status", "ativo");
+
   await supabase.from("clientes").update({ ativo: false }).eq("id", clienteId);
   await supabase
     .from("contratos")
@@ -111,13 +142,8 @@ export async function desativarCliente(clienteId: string) {
     .eq("cliente_id", clienteId)
     .eq("status", "ativo");
 
-  // libera a(s) vaga(s) que esse cliente ocupava
-  const { data: contratos } = await supabase
-    .from("contratos")
-    .select("vaga_id")
-    .eq("cliente_id", clienteId);
-  for (const c of contratos ?? []) {
-    await supabase.from("vagas").update({ status: "livre" }).eq("id", c.vaga_id);
+  for (const contrato of contratos ?? []) {
+    await sincronizarStatusVaga(supabase, contrato.vaga_id);
   }
 
   revalidatePath("/admin/clientes");
@@ -154,8 +180,19 @@ export async function excluirClienteSeSemFaturas(clienteId: string) {
     );
   }
 
+  const { data: contratos } = await supabase
+    .from("contratos")
+    .select("vaga_id")
+    .eq("cliente_id", clienteId);
+
   await supabase.from("clientes").delete().eq("id", clienteId);
+
+  for (const contrato of contratos ?? []) {
+    await sincronizarStatusVaga(supabase, contrato.vaga_id);
+  }
+
   revalidatePath("/admin/clientes");
+  revalidatePath("/admin/vagas");
   redirect("/admin/clientes");
 }
 

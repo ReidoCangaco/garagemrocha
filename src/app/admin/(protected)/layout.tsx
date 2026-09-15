@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-border bg-paper-2">
         <div className="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between">
           <h1 className="font-display font-bold text-xl">
-            Pátio Central<span className="text-signage">.</span>
+            Garagem Rocha<span className="text-signage">.</span>
           </h1>
           <form action={sairDoAdmin}>
             <button className="text-sm text-ink-soft hover:text-ink" type="submit">

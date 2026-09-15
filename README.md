@@ -1,4 +1,4 @@
-# Pátio Central
+# Garagem Rocha
 
 Sistema de gestão de vagas de estacionamento mensalista — MVP.
 

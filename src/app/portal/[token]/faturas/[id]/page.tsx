@@ -35,7 +35,7 @@ export default async function DetalheFaturaPage({
     const txid = fatura.pix_txid || `FAT${fatura.id.replace(/-/g, "").slice(0, 20)}`;
     copiaECola = gerarPayloadPix({
       chave: process.env.PIX_CHAVE || "",
-      nomeRecebedor: process.env.PIX_NOME_RECEBEDOR || "PATIO CENTRAL",
+      nomeRecebedor: process.env.PIX_NOME_RECEBEDOR || "GARAGEM ROCHA",
       cidade: process.env.PIX_CIDADE || "SAO PAULO",
       valor: Number(fatura.valor),
       txid,

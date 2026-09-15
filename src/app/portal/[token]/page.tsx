@@ -29,7 +29,7 @@ export default async function PortalHomePage({ params }: { params: { token: stri
     <div className="min-h-screen">
       <header className="max-w-md mx-auto px-5 pt-6 pb-3">
         <h1 className="font-display font-bold text-2xl">
-          Pátio Central<span className="text-signage">.</span>
+          Garagem Rocha<span className="text-signage">.</span>
         </h1>
       </header>
 

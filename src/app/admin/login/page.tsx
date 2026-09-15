@@ -16,7 +16,7 @@ export default function AdminLoginPage({
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <h1 className="font-display font-bold text-3xl mb-1">
-          Pátio Central<span className="text-signage">.</span>
+          Garagem Rocha<span className="text-signage">.</span>
         </h1>
         <p className="text-sm text-ink-soft mb-8">Painel administrativo</p>
 
